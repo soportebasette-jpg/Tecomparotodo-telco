@@ -320,11 +320,19 @@ footer a{color:var(--orange);text-decoration:underline;cursor:pointer}
         </div>
         <div class="fg">
           <label>Líneas móviles adicionales</label>
-          <select id="o2-adicionales">
+          <select id="o2-adicionales" onchange="updateO2AdicGB()">
             <option value="0">Sin líneas adicionales</option>
-            <option value="1">+1 línea (40GB c/u)</option>
-            <option value="2">+2 líneas (40GB c/u)</option>
-            <option value="3">+3 líneas (40GB c/u)</option>
+            <option value="1">+1 línea adicional</option>
+            <option value="2">+2 líneas adicionales</option>
+            <option value="3">+3 líneas adicionales</option>
+          </select>
+        </div>
+        <div class="fg" id="o2-adicional-gb-wrap" style="display:none">
+          <label>GB líneas adicionales</label>
+          <select id="o2-adicional-gb">
+            <option value="40">40GB – 5€/mes c/u</option>
+            <option value="150">150GB – 10€/mes c/u</option>
+            <option value="300">300GB – 15€/mes c/u</option>
           </select>
         </div>
         <div class="fg">
