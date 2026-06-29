@@ -255,9 +255,13 @@ footer a{color:var(--orange);text-decoration:underline;cursor:pointer}
           </select>
         </div>
         <div class="fg" id="lowi-adicional-gb-wrap" style="display:none">
-          <label>GB líneas adicionales</label>
+          <label>GB por línea adicional (llamadas ilimitadas)</label>
           <select id="lowi-adicional-gb">
-            <option value="25_25">25GB+25GB</option>
+            <option value="10">10GB — 4€/mes</option>
+            <option value="50">50GB — 5€/mes</option>
+            <option value="100">100GB — 8€/mes</option>
+            <option value="150">150GB — 10€/mes</option>
+            <option value="300">300GB — 12€/mes</option>
           </select>
         </div>
         <div class="fg">
@@ -320,7 +324,7 @@ footer a{color:var(--orange);text-decoration:underline;cursor:pointer}
         </div>
         <div class="fg">
           <label>Líneas móviles adicionales</label>
-          <select id="o2-adicionales" onchange="updateO2AdicGB()">
+          <select id="o2-adicionales">
             <option value="0">Sin líneas adicionales</option>
             <option value="1">+1 línea adicional</option>
             <option value="2">+2 líneas adicionales</option>
@@ -328,11 +332,11 @@ footer a{color:var(--orange);text-decoration:underline;cursor:pointer}
           </select>
         </div>
         <div class="fg" id="o2-adicional-gb-wrap" style="display:none">
-          <label>GB líneas adicionales</label>
+          <label>GB por línea adicional (llamadas ilimitadas)</label>
           <select id="o2-adicional-gb">
-            <option value="40">40GB – 5€/mes c/u</option>
-            <option value="150">150GB – 10€/mes c/u</option>
-            <option value="300">300GB – 15€/mes c/u</option>
+            <option value="40">40GB — 5€/mes</option>
+            <option value="150">150GB — 10€/mes</option>
+            <option value="300">300GB — 15€/mes</option>
           </select>
         </div>
         <div class="fg">
@@ -428,7 +432,8 @@ var LOWI = {
     '1000':{ '25_25':33, '50':33, '100':36, '150':38, '300':40 },
     'none':{ '50':7,  '100':10, '150':13, '300':17 }  // solo movil aprox
   },
-  adicional_precio: 5,  // por línea adicional (25GB+25GB)
+  // Líneas adicionales: precio por GB (llamadas ilimitadas, IVA incluido)
+  adicional_planes: { '10':4, '50':5, '100':8, '150':10, '300':12 },
   tv: {
     lowitv: 5, deportes: 1, hbo: 6, netflix: 8, disney: 6, prime: 4
   },
@@ -448,8 +453,8 @@ var O2 = {
     '1000':{ '60':38, '120':41, '350':53, '375':66 },
     'none':{ '60':15, '120':18, '350':30, '375':40 }
   },
-  // líneas adicionales: 40GB c/u
-  adicional_precio: 15,  // aprox por línea adicional 40GB
+  // Líneas adicionales: precio por plan GB (llamadas ilimitadas, IVA incluido)
+  adicional_planes: { '40':5, '150':10, '300':15 },
   // Netflix y Movistar+ están incluidos en algunas tarifas
   netflix_incluido_en: ['375'], // tarifas donde netflix está incluido
   movistar_incluido_en: ['350','375'],
@@ -478,6 +483,12 @@ document.getElementById('chk-o2').onchange = function() {
 // Show/hide líneas adicionales GB selector for Lowi
 document.getElementById('lowi-adicionales').onchange = function() {
   document.getElementById('lowi-adicional-gb-wrap').style.display =
+    this.value !== '0' ? 'block' : 'none';
+};
+
+// Show/hide líneas adicionales GB selector for O2
+document.getElementById('o2-adicionales').onchange = function() {
+  document.getElementById('o2-adicional-gb-wrap').style.display =
     this.value !== '0' ? 'block' : 'none';
 };
 
@@ -514,6 +525,7 @@ function calcular() {
     var lFibra  = document.getElementById('lowi-fibra').value;
     var lMovil  = document.getElementById('lowi-movil1').value;
     var lAdic   = parseInt(document.getElementById('lowi-adicionales').value) || 0;
+    var lAdicGb = document.getElementById('lowi-adicional-gb').value || '50';
 
     if (lFibra === 'none' && lMovil === 'none') {
       showAlert('⚠️ Selecciona al menos fibra o móvil para Lowi.');
@@ -532,7 +544,8 @@ function calcular() {
       lBase = lFibra === '600' ? 20 : 25; // solo fibra
     }
 
-    var lAdicTotal = lAdic * LOWI.adicional_precio;
+    var lAdicPrecio = lAdic > 0 ? (LOWI.adicional_planes[lAdicGb] || 5) : 0;
+    var lAdicTotal = lAdic * lAdicPrecio;
     var lTV = 0, lTVItems = [];
     if (document.getElementById('lowi-lowitv').checked)  { lTV += LOWI.tv.lowitv;  lTVItems.push('LowiTV'); }
     if (document.getElementById('lowi-deportes').checked){ lTV += LOWI.tv.deportes; lTVItems.push('Pack Deportes'); }
@@ -551,12 +564,14 @@ function calcular() {
       fibra: lFibra,
       movil: lMovil,
       adicionales: lAdic,
+      adicGb: lAdicGb,
+      adicPrecio: lAdicPrecio,
       base: lBase,
       adicTotal: lAdicTotal,
       tv: lTV,
       tvItems: lTVItems,
       total: lTotal,
-      desglose: buildDesgloseLowi(lFibra, lMovil, lAdic, lBase, lAdicTotal, lTV, lTVItems)
+      desglose: buildDesgloseLowi(lFibra, lMovil, lAdic, lAdicGb, lBase, lAdicTotal, lTV, lTVItems)
     });
   }
 
@@ -565,6 +580,7 @@ function calcular() {
     var oFibra = document.getElementById('o2-fibra').value;
     var oMovil = document.getElementById('o2-movil1').value;
     var oAdic  = parseInt(document.getElementById('o2-adicionales').value) || 0;
+    var oAdicGb = document.getElementById('o2-adicional-gb').value || '40';
     var oNetflix  = document.getElementById('o2-netflix').checked;
     var oMovistar = document.getElementById('o2-movistar').checked;
 
@@ -582,7 +598,8 @@ function calcular() {
       oBase = oFibra === '600' ? 27 : 31;
     }
 
-    var oAdicTotal = oAdic * O2.adicional_precio;
+    var oAdicPrecio = oAdic > 0 ? (O2.adicional_planes[oAdicGb] || 5) : 0;
+    var oAdicTotal = oAdic * oAdicPrecio;
 
     // Netflix/Movistar+ ya incluidos en algunas tarifas
     var netflixIncl  = O2.netflix_incluido_en.indexOf(oMovil) >= 0;
@@ -603,6 +620,8 @@ function calcular() {
       fibra: oFibra,
       movil: oMovil,
       adicionales: oAdic,
+      adicGb: oAdicGb,
+      adicPrecio: oAdicPrecio,
       base: oBase,
       adicTotal: oAdicTotal,
       extras: oExtras,
@@ -610,7 +629,7 @@ function calcular() {
       netflixIncl: netflixIncl,
       movistarIncl: movistarIncl,
       total: oTotal,
-      desglose: buildDesgloseO2(oFibra, oMovil, oAdic, oBase, oAdicTotal, oExtrasItems, oTotal)
+      desglose: buildDesgloseO2(oFibra, oMovil, oAdic, oAdicGb, oBase, oAdicTotal, oExtrasItems, oTotal)
     });
   }
 
@@ -632,10 +651,19 @@ function calcular() {
 
   var notas = ['Precios finales con IVA incluido. Sin permanencia. Sujeto a cobertura.'];
   if (incLowi) notas.push('Lowi: red Vodafone. Gigas extra incluidos según plan.');
-  if (incO2)   notas.push('O2: red Movistar. Líneas adicionales 40GB c/u.');
+  if (incO2)   notas.push('O2: red Movistar. Líneas adicionales con llamadas ilimitadas.');
+
+  // Mensaje especial Lowi para clientes de otras operadoras
+  var lowiMsgHtml = '';
+  if (incLowi) {
+    lowiMsgHtml = '<div style="background:linear-gradient(135deg,#fff3f3,#ffe0e0);border:2px solid var(--lowi);border-radius:12px;padding:14px 18px;margin-bottom:16px;font-size:.85rem;color:#8B0000;line-height:1.6">'
+      +'<strong>🔴 ¿Vienes de O2/Movistar, Digi, MasMovil, Yoigo, Orange, Pepe Phone, Symio o Jazztel?</strong><br>'
+      +'Con Lowi, la <strong>Fibra 1 Gb + 2 móviles de 25 GB = solo 25€/mes</strong>. ¡Sin permanencia y con llamadas ilimitadas!'
+      +'</div>';
+  }
 
   document.getElementById('rsub').innerHTML = 'Resultado para: <strong>'+sub+'</strong>';
-  document.getElementById('nbox').innerHTML = notas.join(' · ');
+  document.getElementById('nbox').innerHTML = (lowiMsgHtml ? lowiMsgHtml : '') + notas.join(' · ');
   document.getElementById('cgrid').innerHTML = cards;
   document.getElementById('results').style.display = 'block';
   document.getElementById('clientBox').style.display = 'flex';
@@ -667,28 +695,28 @@ function fGb(v) {
   return v+'GB';
 }
 
-function buildDesgloseLowi(fibra, movil, adic, base, adicTotal, tv, tvItems) {
+function buildDesgloseLowi(fibra, movil, adic, adicGb, base, adicTotal, tv, tvItems) {
   var rows = [];
   if (fibra !== 'none' && movil !== 'none') rows.push({l:'Fibra '+fMb(fibra)+' + Móvil '+fGb(movil), v: base+'€'});
   else if (fibra !== 'none') rows.push({l:'Fibra '+fMb(fibra), v:base+'€'});
   else if (movil !== 'none') rows.push({l:'Móvil '+fGb(movil), v:base+'€'});
-  if (adic > 0) rows.push({l:adic+' línea'+(adic>1?'s':'')+' adicional'+(adic>1?'es':'')+' (25GB+25GB c/u)', v:adicTotal+'€'});
+  if (adic > 0) rows.push({l:adic+' línea'+(adic>1?'s':'')+' adicional'+(adic>1?'es':'')+' ('+adicGb+'GB c/u, llamadas ilimitadas)', v:adicTotal+'€'});
   tvItems.forEach(function(t){ rows.push({l:'📺 '+t, v:'incluido'}); });
   return rows;
 }
 
-function buildDesgloseO2(fibra, movil, adic, base, adicTotal, extrasItems, total) {
+function buildDesgloseO2(fibra, movil, adic, adicGb, base, adicTotal, extrasItems, total) {
   var rows = [];
   if (fibra !== 'none' && movil !== 'none') rows.push({l:'Fibra '+fMb(fibra)+' + Móvil '+fGb(movil)+'GB', v:base+'€'});
   else if (fibra !== 'none') rows.push({l:'Fibra '+fMb(fibra), v:base+'€'});
   else if (movil !== 'none') rows.push({l:'Móvil '+fGb(movil)+'GB', v:base+'€'});
-  if (adic > 0) rows.push({l:adic+' línea'+(adic>1?'s':'')+' adicional'+(adic>1?'es':'')+' (40GB c/u)', v:adicTotal+'€'});
+  if (adic > 0) rows.push({l:adic+' línea'+(adic>1?'s':'')+' adicional'+(adic>1?'es':'')+' ('+adicGb+'GB c/u, llamadas ilimitadas)', v:adicTotal+'€'});
   extrasItems.forEach(function(e){ rows.push({l:'📺 '+e, v:''}); });
   return rows;
 }
 
 function buildCard(r, solo) {
-  var logoSrc = 'logo_'+r.empresa+'.png';
+  var logoSrc = r.empresa === 'o2' ? 'logo_O2.png' : 'logo_'+r.empresa+'.png';
   var tipo = [];
   if (r.fibra !== 'none') tipo.push(fMb(r.fibra));
   if (r.movil !== 'none') tipo.push(r.adicionales > 0 ? fGb(r.movil)+' + '+r.adicionales+' línea'+(r.adicionales>1?'s':'') : fGb(r.movil)+'GB');
