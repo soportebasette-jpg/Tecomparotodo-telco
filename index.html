@@ -417,11 +417,17 @@ footer a{color:var(--orange);text-decoration:underline;cursor:pointer}
               <option value="c2_plat">2 líneas + TV + Prime + Disney+ + HBO Max</option>
               <option value="c2_dazn">2 líneas 60GB + TV + Netflix + DAZN</option>
             </optgroup>
+            <optgroup label="Fibra + Móvil (sin TV)">
+              <option value="c1_60_notv">Fibra 600Mb + 1 línea 60GB</option>
+              <option value="c2_160_notv">Fibra 600Mb + 2 líneas 160GB</option>
+              <option value="c1000_2_60_notv">Fibra 1Gb + 2 líneas 60GB</option>
+            </optgroup>
             <optgroup label="Solo fibra">
               <option value="f600">Fibra 600Mb</option>
               <option value="f1000tv">Fibra 1Gb + Vodafone TV</option>
             </optgroup>
             <optgroup label="Solo móvil">
+              <option value="m30">Móvil 30GB</option>
               <option value="m60">Móvil 60GB</option>
               <option value="m160">Móvil 160GB</option>
             </optgroup>
@@ -590,8 +596,12 @@ var VODAFONE = {
     c2_160:  { label:'Fibra 600Mb + 2 líneas 160GB + TV + Netflix + Prime',precio:54, precio2027:72,   fibra:'600',  movil:'160', lineas:2, tv:true, incl:['Vodafone TV','Netflix','Prime Video'] },
     c2_plat: { label:'Fibra 600Mb + 2 líneas ilimitadas + TV + Prime + Disney+ + HBO Max', precio:59, precio2027:null, fibra:'600', movil:'ilimitadas', lineas:2, tv:true, incl:['Vodafone TV','Prime Video','Disney+','HBO Max'] },
     c2_dazn: { label:'Fibra 600Mb + 2 líneas 60GB + TV + Netflix + DAZN',  precio:70, precio2027:null, fibra:'600',  movil:'60',  lineas:2, tv:true, incl:['Vodafone TV','Netflix','DAZN'] },
+    c1_60_notv:       { label:'Fibra 600Mb + 1 línea 60GB (sin TV)',   precio:43, precio2027:null, fibra:'600',  movil:'60', lineas:1, tv:false, incl:[] },
+    c2_160_notv:      { label:'Fibra 600Mb + 2 líneas 160GB (sin TV)', precio:39, precio2027:54,   fibra:'600',  movil:'160', lineas:2, tv:false, incl:[] },
+    c1000_2_60_notv:  { label:'Fibra 1Gb + 2 líneas 60GB (sin TV)',    precio:49, precio2027:59,   fibra:'1000', movil:'60', lineas:2, tv:false, incl:[] },
     f600:    { label:'Fibra 600Mb (con fijo ilimitado)',                   precio:20, precio2027:30,   fibra:'600',  movil:'none',lineas:0, tv:false, incl:[] },
     f1000tv: { label:'Fibra 1Gb + Vodafone TV',                            precio:25, precio2027:35,   fibra:'1000', movil:'none',lineas:0, tv:true, incl:['Vodafone TV'] },
+    m30:     { label:'Móvil 30GB (a 5G)',                                  precio:11, precio2027:null, fibra:'none', movil:'30',  lineas:1, tv:false, incl:[] },
     m60:     { label:'Móvil 60GB (ilimitada a 5G)',                        precio:16, precio2027:null, fibra:'none', movil:'60',  lineas:1, tv:false, incl:[] },
     m160:    { label:'Móvil 160GB (ilimitada a 5G)',                       precio:21, precio2027:null, fibra:'none', movil:'160', lineas:1, tv:false, incl:[] }
   },
